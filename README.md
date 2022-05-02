@@ -1,5 +1,5 @@
-## OS-Chat
-# Checklist:
+# OS-Chat
+## Checklist:
 
 - [x] Conexión entre cliente-servidor [puerto 888]
 - [x] Conexión entre dos o más personas
