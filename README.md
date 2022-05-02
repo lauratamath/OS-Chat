@@ -1,4 +1,8 @@
 # OS-Chat
+
+## Libraries
+- sudo apt-get install libjason-c-dev
+
 ## Checklist:
 
 - [x] Conexión entre cliente-servidor [puerto 888]

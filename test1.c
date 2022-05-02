@@ -1,4 +1,4 @@
-#include <json/json.h>
+#include <json-c/json.h>
 #include <stdio.h>
 
 void json_parse(json_object * jobj) {
@@ -12,11 +12,9 @@ void json_parse(json_object * jobj) {
  }
  }
 }
+
 int main() {
- char * string = "{ "sitename" : "Joys of Programming",
- "purpose" : "programming tips",
- "platform" : "wordpress"
- }";
+ char * string = "{ "sitename" : "Joys of Programming", "purpose" : "programming tips","platform" : "wordpress"}";
  printf ("JSON string: %sn", string);
  json_object * jobj = json_tokener_parse(string);
  json_parse(jobj);
