@@ -1,121 +1,66 @@
-/*
-	C socket server example, handles multiple clients using threads
-*/
-
-#include<stdio.h>
-#include<string.h>	//strlen
-#include<stdlib.h>	//strlen
-#include<sys/socket.h>
-#include<arpa/inet.h>	//inet_addr
-#include<unistd.h>	//write
-#include<pthread.h> //for threading , link with lpthread
+// Dependencies
+#include <arpa/inet.h>
+#include <errno.h>
 #include <json-c/json.h>
+#include <math.h>
+#include <netinet/in.h>
+#include <pthread.h>
 
-//the thread function
-void *connection_handler(void *);
 
-int main(int argc , char *argv[])
-{
-	int socket_desc , client_sock , c , *new_sock;
-	struct sockaddr_in server , client;
-	
-	//Create socket
-	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
-	if (socket_desc == -1)
-	{
-		printf("Could not create socket");
+int main(int argc, char **argv){
+	all_chat = json_object_new_array();
+	if(argc != 2){
+		printf("Usage: %s <port>\n", argv[0]);
+		return EXIT_FAILURE;
 	}
-	puts("Socket created");
-	
-	//Prepare the sockaddr_in structure
-	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons( 8888 );
-	
-	//Bind
-	if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
-	{
-		//print the error message
-		perror("bind failed. Error");
-		return 1;
-	}
-	puts("bind done");
-	
-	//Listen
-	listen(socket_desc , 3);
-	
-	//Accept and incoming connection
-	puts("Waiting for incoming connections...");
-	c = sizeof(struct sockaddr_in);
-	
-	
-	//Accept and incoming connection
-	puts("Waiting for incoming connections...");
-	c = sizeof(struct sockaddr_in);
-	while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) )
-	{
-		puts("Connection accepted");
-		
-		pthread_t sniffer_thread;
-		new_sock = malloc(1);
-		*new_sock = client_sock;
-		
-		if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0)
-		{
-			perror("could not create thread");
-			return 1;
-		}
-		
-		//Now join the thread , so that we dont terminate before the thread
-		//pthread_join( sniffer_thread , NULL);
-		puts("Handler assigned");
-	}
-	
-	if (client_sock < 0)
-	{
-		perror("accept failed");
-		return 1;
-	}
-	
-	return 0;
-}
 
-/*
- * This will handle connection for each client
- * */
-void *connection_handler(void *socket_desc)
-{
-	//Get the socket descriptor
-	int sock = *(int*)socket_desc;
-	int read_size;
-	char *message , client_message[2000];
-	
-	//Send some messages to the client
-	message = "Greetings! I am your connection handler\n";
-	write(sock , message , strlen(message));
-	
-	message = "Now type something and i shall repeat what you type \n";
-	write(sock , message , strlen(message));
-	
-	//Receive a message from client
-	while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 )
-	{
-		//Send the message back to client
-		write(sock , client_message , strlen(client_message));
+	char *ip = "127.0.0.1";
+	int port = atoi(argv[1]);
+	int option = 1;
+	int listenfd = 0, connfd = 0;
+  struct sockaddr_in serv_addr;
+  struct sockaddr_in cli_addr;
+  pthread_t tid;
+
+  /* Socket settings */
+  listenfd = socket(AF_INET, SOCK_STREAM, 0);
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_addr.s_addr = inet_addr(ip);
+  serv_addr.sin_port = htons(port);
+
+  /* Ignore pipe signals */
+	signal(SIGPIPE, SIG_IGN);
+
+	if(setsockopt(listenfd, SOL_SOCKET,(SO_REUSEPORT | SO_REUSEADDR),(char*)&option,sizeof(option)) < 0){
+		perror("ERROR: setsockopt failed");
+    return EXIT_FAILURE;
 	}
-	
-	if(read_size == 0)
-	{
-		puts("Client disconnected");
-		fflush(stdout);
+
+	/* Bind */
+  if(bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+    perror("ERROR: Socket binding failed");
+    return EXIT_FAILURE;
+  }
+
+  /* Listen */
+  if (listen(listenfd, 10) < 0) {
+    perror("ERROR: Socket listening failed");
+    return EXIT_FAILURE;
 	}
-	else if(read_size == -1)
-	{
-		perror("recv failed");
+
+
+	while(1){
+		socklen_t clilen = sizeof(cli_addr);
+		connfd = accept(listenfd, (struct sockaddr*)&cli_addr, &clilen);
+
+		// User info settings
+		user_obj *cli = (user_obj *)malloc(sizeof(user_obj));
+		cli->ip_address = cli_addr;
+		cli->socket_instance = connfd;
+		cli->universal_unique_id = universal_unique_id++;
+		cli->status = 0;
+
 	}
-		
-	//Free the socket pointer
-	free(socket_desc);
-	
-	return 0;
+
+	return EXIT_SUCCESS;
 }
