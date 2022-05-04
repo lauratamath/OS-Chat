@@ -205,6 +205,7 @@ void *handle_client(void *arg){
 					json_object_get_string(message),json_object_get_string(delivered_at));
 					json_object *aux_mssg = json_object_new_string(to_chat);
 
+					printf("Este es el to %s", to);
 					if(strcmp(json_object_get_string(to),"all") == 0){
 						printf("perfectly working from all post_chat\n");
 						json_object_array_add(all_chat,aux_mssg);
