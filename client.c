@@ -99,4 +99,142 @@ void chatManager() {
 		else if(strcmp(message, "/activeUsers") == 0){
 		// "GET_USER")); //Obtiene la lista de los usuarios conectados
 		}
-		
+		else if(strcmp(message, "/private") == 0){
+		// "POST_CHAT")) // crea un nuevo mensaje para algun chat
+		}
+		else if(strcmp(message, "/general") == 0){
+			sprintf(buffer, "%s\n", message);
+			json_object *POST_CHAT = json_object_new_object();
+			json_object *jarray = json_object_new_array();
+			json_object_object_add(POST_CHAT, "request", json_object_new_string("POST_CHAT"));  //Crea un nuevo mensjae para el grupo
+			json_object *jstring_message = json_object_new_string(buffer);
+			json_object *jstring_from = json_object_new_string(name);
+			json_object *jstring_time = json_object_new_string("00:00");
+			json_object *jstring_to = json_object_new_string(to);
+			json_object_array_add(jarray,jstring_message);
+			json_object_array_add(jarray,jstring_from);	
+			json_object_array_add(jarray,jstring_time);
+			json_object_array_add(jarray,jstring_to);
+	
+			json_object_object_add(POST_CHAT, "body", jarray);
+
+			const char* request = json_object_to_json_string(POST_CHAT);
+
+			printf("%s", request);
+		   send(sockfd, request, strlen(request), 0);
+		}
+		else{
+			sprintf(buffer, "%s\n", message);
+			json_object *POST_CHAT = json_object_new_object();
+			json_object *jarray = json_object_new_array();
+			json_object_object_add(POST_CHAT, "request", json_object_new_string("POST_CHAT")); //Crea un nuevo mensjae para el grupo
+			json_object *jstring_message = json_object_new_string(buffer);
+			json_object *jstring_from = json_object_new_string(name);
+			json_object *jstring_time = json_object_new_string("00:00");
+			json_object *jstring_to = json_object_new_string(to);
+			json_object_array_add(jarray,jstring_message);
+			json_object_array_add(jarray,jstring_from);	
+			json_object_array_add(jarray,jstring_time);
+			json_object_array_add(jarray,jstring_to);
+	
+			json_object_object_add(POST_CHAT, "body", jarray);
+
+			const char* request = json_object_to_json_string(POST_CHAT);
+
+			printf("%s", request);
+		   send(sockfd, request, strlen(request), 0);
+		}
+		bzero(message, LENGTH);
+		bzero(buffer, LENGTH + 32);
+	}
+}
+
+void chatManager_recv() {
+	char message[LENGTH] = {};
+	while (1) {
+		int receive = recv(sockfd, message, LENGTH, 0);
+	if (receive > 0) {
+      printf("%s", message);
+      strOverwriteStdout();
+    } else if (receive == 0) {
+			break;
+    } 
+	memset(message, 0, sizeof(message));
+  }
+}
+
+int main(int argc, char **argv){
+	if(argc != 2){
+		printf("Usage: %s <port>\n", argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	char *ip = "127.0.0.1";
+	int port = atoi(argv[1]);
+	
+	signal(SIGINT, catch_ctrl_c_and_exit);
+
+	printf("Please enter your name: ");
+	fgets(name, 32, stdin);
+	chatManager_recv(name, strlen(name));
+	// FALTA hacer la condicion para que no se repita el nombre
+
+	if (strlen(name) > 20 || strlen(name) < 3){
+		printf("El nombre no puede ser mayor a 30 ni menor a  3 caracteres.\n");
+		return EXIT_FAILURE;
+	}
+
+	struct sockaddr_in server_addr;
+	
+	// Ajustes del socket
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_addr.s_addr = inet_addr(ip);
+	server_addr.sin_port = htons(port);
+
+	 // Connect to Server
+	int err = connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+	if (err == -1) {
+		printf("ERROR: connect\n");
+		return EXIT_FAILURE;
+	}
+
+	// Manda el nombre
+	json_object *INIT_CONEX = json_object_new_object();
+	json_object *jarray = json_object_new_array();
+	json_object_object_add(INIT_CONEX, "request", json_object_new_string("INIT_CONEX")); // Establecer una conexion al servidor
+	json_object *jstring_time = json_object_new_string("00:00");
+	json_object *jstring_name = json_object_new_string(name);
+	json_object_array_add(jarray,jstring_time);
+	json_object_array_add(jarray,jstring_name);
+	json_object_object_add(INIT_CONEX, "body", jarray);
+
+	const char* request = json_object_to_json_string(INIT_CONEX);
+	printf("%s\n",request);
+	send(sockfd, request, strlen(request), 0);
+	printf("----- Este es el chat UVG -----\n\n");
+	pthread_t send_msg_thread;
+
+	if(pthread_create(&send_msg_thread, NULL, (void *) chatManager, NULL) != 0){
+		printf("ERROR: pthread\n");
+    return EXIT_FAILURE;
+	}
+
+	pthread_t recv_msg_thread;
+	if(pthread_create(&recv_msg_thread, NULL, (void *) chatManager_recv, NULL) != 0){
+		printf("ERROR: pthread\n");
+		return EXIT_FAILURE;
+	}
+
+	while (1){
+		if(flag){
+			printf("\nEl chat ha sido abandonado\n");
+			break;
+		}
+	}
+
+	close(sockfd);
+
+	return EXIT_SUCCESS;
+}
+
