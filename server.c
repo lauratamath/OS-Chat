@@ -27,7 +27,7 @@ typedef struct{
 	int universal_unique_id;
 	struct sockaddr_in ip_address;
 	char name[20];
-};
+} user_t;
 
 json_object *all_chat;
 
