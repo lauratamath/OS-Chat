@@ -58,6 +58,9 @@ void chatManager() {
 		//Strcmp compara 2 strings y si estos son iguales, regresa 0
 		if (strcmp(message, "/exit") == 0) {
 			printf("\nEl chat ha sido abandonado\n");
+			json_object *END_CONEX = json_object_new_object();
+			json_object *jarray = json_object_new_array();
+			json_object_object_add(END_CONEX, "request", json_object_new_string("END_CONEX ")); //Finalizar la conexion con el servidor
 			break;
     	} 
 		else if(strcmp(message, "/help") == 0){
@@ -112,8 +115,19 @@ void chatManager() {
 			send(socketDesc, request, strlen(request), 0);
 		}
 		else if(strcmp(message, "/activeUsers") == 0){
-		// "GET_USER")); //Obtiene la lista de los usuarios conectados
-		
+			json_object *GET_USER= json_object_new_object();
+			json_object *jarray = json_object_new_array();
+			json_object_object_add(GET_USER, "request", json_object_new_string("GET_USER")); //Array con la ip de un usuario en especifico
+			json_object *jstring_user = json_object_new_string(to);
+			json_object_array_add(jarray,jstring_user);
+			json_object_object_add(GET_USER, "body", jarray);
+
+			const char* request = json_object_to_json_string(GET_USER);
+
+			printf("%s", request);
+	
+			sprintf(buffer, "%s",message);
+			send(socketDesc, request, strlen(request), 0);
 		}
 		else if(strcmp(message, "/private") == 0){
 		printf("Ingrese el nombre del usuario que desea hablar:\n");
@@ -199,20 +213,20 @@ int main(int argc, char **argv){
 	int port = atoi(argv[1]);
 	
 
-	printf("Please enter your name: ");
+	printf("Ingrese su nombre: ");
 	fgets(name, 32, stdin);
 	strTrimLf(name, strlen(name));
-	
-	if (strlen(name) == json_object_to_json_string(GET_USER)){
-		printf("Este usuario ya existe.\n");
-		return EXIT_FAILURE;
-	}
 	
 
 	if (strlen(name) > 20 || strlen(name) < 3){
 		printf("El nombre no puede ser mayor a 30 ni menor a  3 caracteres.\n");
 		return EXIT_FAILURE;
 	}
+
+	//if (strlen(name) == json_object_to_json_string(GET_USER)){
+	//	printf("Este usuario ya existe.\n");
+	//	return EXIT_FAILURE;
+	//}
 
 	struct sockaddr_in server_addr;
 	
