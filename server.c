@@ -15,10 +15,10 @@
 #include <unistd.h>
 
 // Global variables
-#define MAX_USERS 50
-#define BUFFER_LIMIT 4096
+#define MAX_USERS 25
+#define BUFFER_LIMIT 2048
 static _Atomic unsigned int user_counter = 0;
-static int universal_unique_id = 12345678;
+static int universal_unique_id = 10;
 
 // Object tht will contain all the user data
 typedef struct{
@@ -26,7 +26,7 @@ typedef struct{
 	int socket_instance;
 	int universal_unique_id;
 	struct sockaddr_in ip_address;
-	char name[20];
+	char name[32];
 } user_t;
 
 json_object *all_chat;
@@ -67,7 +67,7 @@ void queue_add(user_t *cl){
 	int i;
 	for(i=0; i < MAX_USERS; ++i){
 		if(!users[i]){
-			users[i] = cl;
+			users[i] = (struct user_t*)cl;
 			break;
 		}
 	}
