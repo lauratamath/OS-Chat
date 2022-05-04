@@ -15,8 +15,8 @@
 #include <unistd.h>
 
 // Global variables
-#define MAX_USERS = 50;
-#define BUFFER_LIMIT = 4096;
+#define MAX_USERS 50;
+#define BUFFER_LIMIT 4096;
 static _Atomic unsigned int user_counter = 0;
 static int universal_unique_id = 12345678;
 
