@@ -1,7 +1,7 @@
 # OS-Chat
 
 ## Libraries
-- sudo apt-get install libjason-c-dev
+- sudo apt-get install libjson-c-dev
 
 ## Compile
 - gcc -o client client.c -lpthread -ljson-c
