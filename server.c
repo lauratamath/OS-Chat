@@ -107,20 +107,20 @@ void send_message(char *s, int uid){
 }
 
 void send_private_message(char *s, char *name){
-        pthread_mutex_lock(&clients_mutex);
-        int i;
-        for(i=0; i<MAX_CLIENTS; ++i){
-                if(clients[i]){
-                        if(clients[i]->name == name){
-                                if(write(clients[i]->sockfd, s, strlen(s)) < 0){
-                                        perror("ERROR: write to descriptor failed");
-                                        break;
-                                }
-                        }
-                }
-        }
+	pthread_mutex_lock(&clients_mutex);
+	int i;
+	for(i=0; i<MAX_CLIENTS; ++i){
+		if(clients[i]){
+			if(clients[i]->name == name){
+				if(write(clients[i]->sockfd, s, strlen(s)) < 0){
+					perror("ERROR: write to descriptor failed");
+					break;
+				}
+			}
+		}
+	}
 
-        pthread_mutex_unlock(&clients_mutex);
+	pthread_mutex_unlock(&clients_mutex);
 }
 
 
@@ -242,7 +242,7 @@ void *handle_client(void *arg){
 						int i;
 						for(i=0; i<MAX_CLIENTS; ++i){
 							if(clients[i]){
-								sprintf(user_info, "%s, status: %d\n", clients[i]->name, clients[i]->status);
+								sprintf(user_info, "%s, status: %d \n", clients[i]->name, clients[i]->status);
 								json_object_array_add(users,json_object_new_string(user_info));
 								bzero(user_info, 56);
 							}
@@ -256,7 +256,7 @@ void *handle_client(void *arg){
             for(i=0; i<MAX_CLIENTS; ++i){
             	if(clients[i]){
 								if(clients[i]->name == user_type){}
-                 	sprintf(user_info, "status: %d\n", clients[i]->status);
+                 	sprintf(user_info, "status: %d \n", clients[i]->status);
                 }
               }
             //pthread_mutex_unlock(&clients_mutex);
@@ -347,6 +347,7 @@ int main(int argc, char **argv){
 	printf("Autores\n");
 	printf("Martín España		Carné: 19258\n");
 	printf("Laura Tamath		Carné: 19365\n");
+	printf("CHAT DE OS ----- HOWSAPP\n");
 
 	while(1){
 		socklen_t clilen = sizeof(cli_addr);
