@@ -31,7 +31,7 @@ typedef struct{
 
 json_object *all_chat;
 
-user_obj *users[MAX_USERS];
+user_t *users[MAX_USERS];
 
 pthread_mutex_t users_mutex = PTHREAD_MUTEX_INITIALIZER;
 
