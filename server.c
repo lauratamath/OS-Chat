@@ -15,10 +15,10 @@
 #include <unistd.h>
 
 // Global variables
-int MAX_USERS = 50;
-int BUFFER_LIMIT = 4096;
-int user_counter = 0;
-int universal_unique_id = 12345678;
+#define MAX_USERS = 50;
+#define BUFFER_LIMIT = 4096;
+static _Atomic unsigned int user_counter = 0;
+static int universal_unique_id = 12345678;
 
 // Object tht will contain all the user data
 typedef struct{
