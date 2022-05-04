@@ -19,7 +19,7 @@ int socketDesc = 0;
 
 // TO DO FALTA
 void strOverwriteStdout() { // Sobreescribe el destino del proceso
-  printf("%s", "> ");
+  printf("%s", "$ ");
   fflush(stdout); // Limpieza del buffer
 }
 
