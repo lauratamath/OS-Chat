@@ -94,7 +94,7 @@ void chatManager() {
 			sprintf(buffer, "%s",message);
 			send(socketDesc, request, strlen(request), 0);
 		}
-		else if(strcmp(message, "/chageStatus") == 0){
+		else if(strcmp(message, "/changeStatus") == 0){
 			printf("Ingrese el numero correspondiente a su estado: 0 = activo, 1 = inactivo, 2 = ocupado:\n");
 			int state;
 			char stateSTR[2];
