@@ -174,11 +174,11 @@ void *handle_client(void *arg){
 		if (receive > 0){
 			if(strlen(buff_out) > 0){
 				json_object *parsed_json;
-                		json_object *request;
-                		json_object *body;
+				json_object *request;
+				json_object *body;
 
-                		parsed_json = json_tokener_parse(buff_out);
-                		json_object_object_get_ex(parsed_json,"request", &request);
+				parsed_json = json_tokener_parse(buff_out);
+				json_object_object_get_ex(parsed_json,"request", &request);
 				json_object_object_get_ex(parsed_json,"body", &body);
 				strcpy(temp_req, json_object_get_string(request));
 				printf("%s\n", temp_req);
@@ -198,9 +198,9 @@ void *handle_client(void *arg){
 					//strcpy(aux_to, json_object_get_string(to));
 
 					sprintf(to_chat, "%s: %s at %s\n", json_object_get_string(from),
-						json_object_get_string(message),json_object_get_string(delivered_at));
+					json_object_get_string(message),json_object_get_string(delivered_at));
 					json_object *aux_mssg = json_object_new_string(to_chat);
-					if(1){
+					if(strcmp(json_object_get_string(to),"all") == 0){
 						printf("perfectly working from all post_chat\n");
 						json_object_array_add(all_chat,aux_mssg);
 						send_message(to_chat, cli->uid);
@@ -211,24 +211,13 @@ void *handle_client(void *arg){
 
 					//strcpy(mssg, json_object_get_string(message));
 					json_object *POST_CHAT = json_object_new_object();
-                       			json_object_object_add(POST_CHAT, "response", json_object_new_string("POST_CHAT"));
-                        		json_object_object_add(POST_CHAT, "code", json_object_new_int(200));
-                        		write(cli->sockfd, json_object_to_json_string(POST_CHAT), 
-                                		strlen(json_object_to_json_string(POST_CHAT)));
+					json_object_object_add(POST_CHAT, "response", json_object_new_string("POST_CHAT"));
+					json_object_object_add(POST_CHAT, "code", json_object_new_int(200));
+					write(cli->sockfd, json_object_to_json_string(POST_CHAT), 
+					strlen(json_object_to_json_string(POST_CHAT)));
 					str_trim_lf(to_chat,strlen(to_chat));
 					printf("%s\n", to_chat);
 
-				/*}else if(strcmp(temp_req,"GET_CHAT\n")){
-					char chat_type[32];
-					strcpy(chat_type, json_object_get_string(body));
-					if(strcmp(temp_req,"all\n")){
-						json_object *GET_CHAT = json_object_new_object();
-                				json_object_object_add(GET_CHAT, "response", json_object_new_string("GET_CHAT"));
-                				json_object_object_add(GET_CHAT, "code", json_object_new_int(200));
-                				json_object_object_add(GET_CHAT, "body", all_chat);
-                				write(cli->sockfd, json_object_to_json_string(GET_CHAT), 
-                        				strlen(json_object_to_json_string(GET_CHAT)));
-					}*/
 				}else if(strcmp(temp_req,"GET_USER")==0){
 					char user_type[32];
 					char user_info[56];
@@ -237,42 +226,42 @@ void *handle_client(void *arg){
 
 					printf("someone asked for user info\n");
 					json_object *users = json_object_new_array();
-		                        json_object *GET_USER = json_object_new_object();
+		      json_object *GET_USER = json_object_new_object();
 					
 					strcpy(user_type, json_object_get_string(aux_type));
 					printf("%s\n",user_type);
 
-                                        if(strcmp(user_type,"all")==0){
+          if(strcmp(user_type,"all")==0){
 						//pthread_mutex_lock(&clients_mutex);
-        					int i;
-        					for(i=0; i<MAX_CLIENTS; ++i){
-                					if(clients[i]){
-                        					sprintf(user_info, "%s, status: %d\n", clients[i]->name, clients[i]->status);
+						int i;
+						for(i=0; i<MAX_CLIENTS; ++i){
+							if(clients[i]){
+								sprintf(user_info, "%s, status: %d\n", clients[i]->name, clients[i]->status);
 								json_object_array_add(users,json_object_new_string(user_info));
-                						bzero(user_info, 56);
+								bzero(user_info, 56);
 							}
-        					}
-        					//pthread_mutex_unlock(&clients_mutex);
-	                                        json_object_object_add(GET_USER, "body", users);
+        		}
+        			//pthread_mutex_unlock(&clients_mutex);
+	            json_object_object_add(GET_USER, "body", users);
 
 					}else{
 						//pthread_mutex_lock(&clients_mutex);
-                                                int i;
-                                                for(i=0; i<MAX_CLIENTS; ++i){
-                                                        if(clients[i]){
+            int i;
+            for(i=0; i<MAX_CLIENTS; ++i){
+            	if(clients[i]){
 								if(clients[i]->name == user_type){}
-                                                                	sprintf(user_info, "status: %d\n", clients[i]->status);
-                                                        }
-                                                }
-                                                //pthread_mutex_unlock(&clients_mutex);
-	                                        json_object_object_add(GET_USER, "body", json_object_new_string(user_info));
+                 	sprintf(user_info, "status: %d\n", clients[i]->status);
+                }
+              }
+            //pthread_mutex_unlock(&clients_mutex);
+	          json_object_object_add(GET_USER, "body", json_object_new_string(user_info));
 
 					}
 
-                                        json_object_object_add(GET_USER, "response", json_object_new_string("GET_USER"));
-                                        json_object_object_add(GET_USER, "code", json_object_new_int(200));
-                                        write(cli->sockfd, json_object_to_json_string(GET_USER), 
-                                              strlen(json_object_to_json_string(GET_USER)));
+					json_object_object_add(GET_USER, "response", json_object_new_string("GET_USER"));
+					json_object_object_add(GET_USER, "code", json_object_new_int(200));
+					write(cli->sockfd, json_object_to_json_string(GET_USER), 
+					strlen(json_object_to_json_string(GET_USER)));
 
 				}
 			}
@@ -280,10 +269,10 @@ void *handle_client(void *arg){
 			sprintf(buff_out, "%s has left\n", cli->name);
 			printf("%s", buff_out);
 			json_object *END_CONEX = json_object_new_object();
-                	json_object_object_add(END_CONEX, "response", json_object_new_string("END_CONEX"));
-                	json_object_object_add(END_CONEX, "code", json_object_new_int(200));
-                	write(cli->sockfd, json_object_to_json_string(END_CONEX), 
-                        	strlen(json_object_to_json_string(END_CONEX)));
+			json_object_object_add(END_CONEX, "response", json_object_new_string("END_CONEX"));
+			json_object_object_add(END_CONEX, "code", json_object_new_int(200));
+			write(cli->sockfd, json_object_to_json_string(END_CONEX), 
+			strlen(json_object_to_json_string(END_CONEX)));
 			send_message(buff_out, cli->uid);
 			leave_flag = 1;
 		} else {
@@ -309,8 +298,8 @@ void *handle_client(void *arg){
 int main(int argc, char **argv){
 	all_chat = json_object_new_array();
 	if(argc != 2){
-		printf("Usage: %s <port>\n", argv[0]);
-		return EXIT_FAILURE;
+		printf("Debe ingresar un puerto (i.e.): %s 8888 \n", argv[0]);
+		return 1;
 	}
 
 	char *ip = "127.0.0.1";
@@ -332,22 +321,26 @@ int main(int argc, char **argv){
 
 	if(setsockopt(listenfd, SOL_SOCKET,(SO_REUSEPORT | SO_REUSEADDR),(char*)&option,sizeof(option)) < 0){
 		perror("ERROR: setsockopt failed");
-    return EXIT_FAILURE;
+    return 1;
 	}
 
 	/* Bind */
   if(bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
     perror("ERROR: Socket binding failed");
-    return EXIT_FAILURE;
+    return 1;
   }
 
   /* Listen */
   if (listen(listenfd, 10) < 0) {
     perror("ERROR: Socket listening failed");
-    return EXIT_FAILURE;
+    return 1;
 	}
 
-	printf("=== WELCOME TO THE CHATROOM ===\n");
+	printf("Universidad del Valle de Guatemala\n");
+	printf("Sistemas Operativos\n");
+	printf("Autores\n");
+	printf("Martín España		Carné: 19258\n");
+	printf("Laura Tamath		Carné: 19365\n");
 
 	while(1){
 		socklen_t clilen = sizeof(cli_addr);
@@ -379,5 +372,5 @@ int main(int argc, char **argv){
 		sleep(1);
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }
