@@ -22,11 +22,11 @@ static int universal_unique_id = 10;
 
 // Object tht will contain all the user data
 typedef struct{
-	int status;
+	struct sockaddr_in ip_address;
 	int socket_instance;
 	int universal_unique_id;
-	struct sockaddr_in ip_address;
 	char name[32];
+	int status;
 } user_t;
 
 json_object *all_chat;
