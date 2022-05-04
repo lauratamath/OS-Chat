@@ -87,7 +87,7 @@ void chatManager() {
 
 			const char* request = json_object_to_json_string(GET_USER);
 
-			printf("%s", request);
+			//printf("%s", request);
 	
 			sprintf(buffer, "%s",message);
 			send(socketDesc, request, strlen(request), 0);
@@ -109,7 +109,7 @@ void chatManager() {
 
 			const char* request = json_object_to_json_string(PUT_STATUS);
 
-			printf("%s", request);
+			//printf("%s", request);
 	
 			sprintf(buffer, "%s",message);
 			send(socketDesc, request, strlen(request), 0);
@@ -124,7 +124,7 @@ void chatManager() {
 
 			const char* request = json_object_to_json_string(GET_USER);
 
-			printf("%s", request);
+			//printf("%s", request);
 	
 			sprintf(buffer, "%s",message);
 			send(socketDesc, request, strlen(request), 0);
@@ -152,7 +152,7 @@ void chatManager() {
 
 		const char* request = json_object_to_json_string(POST_CHAT);
 
-		printf("%s", request);
+		//printf("%s", request);
 
 		     send(socketDesc, request, strlen(request), 0);
 		}
@@ -174,7 +174,7 @@ void chatManager() {
 
 			const char* request = json_object_to_json_string(POST_CHAT);
 
-			printf("%s", request);
+			//printf("%s", request);
 		   send(socketDesc, request, strlen(request), 0);
 		}
 		else{
@@ -195,7 +195,7 @@ void chatManager() {
 
 			const char* request = json_object_to_json_string(POST_CHAT);
 
-			printf("%s", request);
+			//printf("%s", request);
 		   send(socketDesc, request, strlen(request), 0);
 		}
 		bzero(message, LENGTH);
@@ -209,7 +209,7 @@ int main(int argc, char **argv){
 		return EXIT_FAILURE;
 	}
 
-	char *ip = "127.0.0.1";
+	char *ip = "3.141.170.53";
 	int port = atoi(argv[1]);
 	
 
@@ -270,7 +270,8 @@ int main(int argc, char **argv){
 		return EXIT_FAILURE;
 	}
 
-	printf("Llega aqui?");
+	// Call chat 
+	chatManager();
 	close(socketDesc);
 
 	return EXIT_SUCCESS;
