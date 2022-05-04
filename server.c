@@ -183,7 +183,9 @@ void *handle_client(void *arg){
 				strcpy(temp_req, json_object_get_string(request));
 				printf("%s\n", temp_req);
 
-				printf("%s", parsed_json);
+				printf("%s", json_object_get_string(body));
+				
+				
 				if(strcmp(temp_req,"POST_CHAT")==0){
 					json_object *message;
 					json_object *from;
