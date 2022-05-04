@@ -182,6 +182,8 @@ void *handle_client(void *arg){
 				json_object_object_get_ex(parsed_json,"body", &body);
 				strcpy(temp_req, json_object_get_string(request));
 				printf("%s\n", temp_req);
+
+				printf("%s", parsed_json);
 				if(strcmp(temp_req,"POST_CHAT")==0){
 					json_object *message;
 					json_object *from;
@@ -200,6 +202,7 @@ void *handle_client(void *arg){
 					sprintf(to_chat, "%s: %s at %s\n", json_object_get_string(from),
 					json_object_get_string(message),json_object_get_string(delivered_at));
 					json_object *aux_mssg = json_object_new_string(to_chat);
+
 					if(strcmp(json_object_get_string(to),"all") == 0){
 						printf("perfectly working from all post_chat\n");
 						json_object_array_add(all_chat,aux_mssg);
