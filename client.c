@@ -202,7 +202,11 @@ int main(int argc, char **argv){
 	printf("Please enter your name: ");
 	fgets(name, 32, stdin);
 	strTrimLf(name, strlen(name));
-	// FALTA hacer la condicion para que no se repita el nombre
+	
+	if (strlen(name) == json_object_to_json_string(GET_USER)){
+		printf("Este usuario ya existe.\n");
+		return EXIT_FAILURE;
+	}
 	
 
 	if (strlen(name) > 20 || strlen(name) < 3){

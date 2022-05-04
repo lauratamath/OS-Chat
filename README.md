@@ -3,6 +3,10 @@
 ## Libraries
 - sudo apt-get install libjason-c-dev
 
+## Compile
+- gcc -o client client.c -lpthread -ljson-c
+- gcc -o server server.c -lpthread -ljson-c
+
 ## Checklist:
 
 - [x] Conexión entre cliente-servidor [puerto 888]
