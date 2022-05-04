@@ -13,7 +13,7 @@
 #define LENGTH 2048
 char name[20];
 char to[20] = "all";
-int socked = 0;
+int socketDesc = 0;
 
 // TO DO FALTA
 void strOverwriteStdout() { // Sobreescribe el destino del proceso
@@ -31,6 +31,21 @@ void strTrimLf (char* array, int length) {//quitar el lf a los strings
   }
 }
 
+void chatManager_recv() {
+	char message[LENGTH] = {};
+	while (1) {
+		int receive = recv(socketDesc, message, LENGTH, 0);
+	if (receive > 0) {
+      printf("%s", message);
+      strOverwriteStdout();
+    } else if (receive == 0) {
+			break;
+    } 
+	memset(message, 0, sizeof(message));
+  }
+}
+
+
 void chatManager() {
 	char message[LENGTH] = {};
 	char buffer[LENGTH + 32] = {}; //numero de caracteres
@@ -42,6 +57,7 @@ void chatManager() {
 
 		//Strcmp compara 2 strings y si estos son iguales, regresa 0
 		if (strcmp(message, "/exit") == 0) {
+			printf("\nEl chat ha sido abandonado\n");
 			break;
     	} 
 		else if(strcmp(message, "/help") == 0){
@@ -71,7 +87,7 @@ void chatManager() {
 			printf("%s", request);
 	
 			sprintf(buffer, "%s",message);
-			send(sockfd, request, strlen(request), 0);
+			send(socketDesc, request, strlen(request), 0);
 		}
 		else if(strcmp(message, "/chageStatus") == 0){
 			printf("Ingrese el numero correspondiente a su estado: 0 = activo, 1 = inactivo, 2 = ocupado:\n");
@@ -93,14 +109,38 @@ void chatManager() {
 			printf("%s", request);
 	
 			sprintf(buffer, "%s",message);
-			send(sockfd, request, strlen(request), 0);
-		}
+			send(socketDesc, request, strlen(request), 0);
 		}
 		else if(strcmp(message, "/activeUsers") == 0){
 		// "GET_USER")); //Obtiene la lista de los usuarios conectados
+		
 		}
 		else if(strcmp(message, "/private") == 0){
-		// "POST_CHAT")) // crea un nuevo mensaje para algun chat
+		printf("Ingrese el nombre del usuario que desea hablar:\n");
+		char input[32];
+		fgets(input,32,stdin);
+		strTrimLf(input,32); 
+
+		sprintf(buffer, "%s\n", message);
+		json_object *POST_CHAT = json_object_new_object();
+		json_object *jarray = json_object_new_array();
+		json_object_object_add(POST_CHAT, "request", json_object_new_string("POST_CHAT")); //crea un nuevo mensaje para algun chat
+		json_object *jstring_message = json_object_new_string(buffer);
+		json_object *jstring_from = json_object_new_string(name);
+		json_object *jstring_time = json_object_new_string("00:00");
+		json_object *jstring_to = json_object_new_string(input); //Entabla la conversacion
+		json_object_array_add(jarray,jstring_message);
+		json_object_array_add(jarray,jstring_from);	
+		json_object_array_add(jarray,jstring_time);
+		json_object_array_add(jarray,jstring_to);
+	
+		json_object_object_add(POST_CHAT, "body", jarray);
+
+		const char* request = json_object_to_json_string(POST_CHAT);
+
+		printf("%s", request);
+
+		     send(socketDesc, request, strlen(request), 0);
 		}
 		else if(strcmp(message, "/general") == 0){
 			sprintf(buffer, "%s\n", message);
@@ -121,7 +161,7 @@ void chatManager() {
 			const char* request = json_object_to_json_string(POST_CHAT);
 
 			printf("%s", request);
-		   send(sockfd, request, strlen(request), 0);
+		   send(socketDesc, request, strlen(request), 0);
 		}
 		else{
 			sprintf(buffer, "%s\n", message);
@@ -142,25 +182,11 @@ void chatManager() {
 			const char* request = json_object_to_json_string(POST_CHAT);
 
 			printf("%s", request);
-		   send(sockfd, request, strlen(request), 0);
+		   send(socketDesc, request, strlen(request), 0);
 		}
 		bzero(message, LENGTH);
 		bzero(buffer, LENGTH + 32);
 	}
-}
-
-void chatManager_recv() {
-	char message[LENGTH] = {};
-	while (1) {
-		int receive = recv(sockfd, message, LENGTH, 0);
-	if (receive > 0) {
-      printf("%s", message);
-      strOverwriteStdout();
-    } else if (receive == 0) {
-			break;
-    } 
-	memset(message, 0, sizeof(message));
-  }
 }
 
 int main(int argc, char **argv){
@@ -172,12 +198,12 @@ int main(int argc, char **argv){
 	char *ip = "127.0.0.1";
 	int port = atoi(argv[1]);
 	
-	signal(SIGINT, catch_ctrl_c_and_exit);
 
 	printf("Please enter your name: ");
 	fgets(name, 32, stdin);
-	chatManager_recv(name, strlen(name));
+	strTrimLf(name, strlen(name));
 	// FALTA hacer la condicion para que no se repita el nombre
+	
 
 	if (strlen(name) > 20 || strlen(name) < 3){
 		printf("El nombre no puede ser mayor a 30 ni menor a  3 caracteres.\n");
@@ -187,13 +213,13 @@ int main(int argc, char **argv){
 	struct sockaddr_in server_addr;
 	
 	// Ajustes del socket
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	socketDesc = socket(AF_INET, SOCK_STREAM, 0);
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = inet_addr(ip);
 	server_addr.sin_port = htons(port);
 
 	 // Connect to Server
-	int err = connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+	int err = connect(socketDesc, (struct sockaddr *)&server_addr, sizeof(server_addr));
 	if (err == -1) {
 		printf("ERROR: connect\n");
 		return EXIT_FAILURE;
@@ -211,7 +237,7 @@ int main(int argc, char **argv){
 
 	const char* request = json_object_to_json_string(INIT_CONEX);
 	printf("%s\n",request);
-	send(sockfd, request, strlen(request), 0);
+	send(socketDesc, request, strlen(request), 0);
 	printf("----- Este es el chat UVG -----\n\n");
 	pthread_t send_msg_thread;
 
@@ -226,14 +252,8 @@ int main(int argc, char **argv){
 		return EXIT_FAILURE;
 	}
 
-	while (1){
-		if(flag){
-			printf("\nEl chat ha sido abandonado\n");
-			break;
-		}
-	}
 
-	close(sockfd);
+	close(socketDesc);
 
 	return EXIT_SUCCESS;
 }
