@@ -62,7 +62,7 @@ void print_client_addr(struct sockaddr_in addr){
 }
 
 // Add users to queue
-void queue_add(user_obj *cl){
+void queue_add(user_t *cl){
 	pthread_mutex_lock(&users_mutex);
 	int i;
 	for(i=0; i < MAX_USERS; ++i){
@@ -134,7 +134,7 @@ void *handle_client(void *arg){
 	int leave_flag = 0;
 
 	user_counter++;
-	user_obj *cli = (user_obj *)arg;
+	user_t *cli = (user_t *)arg;
 
 	// Name validation
 	if(recv(cli->socket_instance, conex_request, 64, 0) <= 0){
@@ -349,7 +349,7 @@ int main(int argc, char **argv){
 		}
 
 		// User info settings
-		user_obj *cli = (user_obj *)malloc(sizeof(user_obj));
+		user_t *cli = (user_t *)malloc(sizeof(user_t));
 		cli->ip_address = cli_addr;
 		cli->socket_instance = connfd;
 		cli->universal_unique_id = universal_unique_id++;
