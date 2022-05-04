@@ -202,7 +202,7 @@ void *handle_client(void *arg){
 						json_object_array_add(all_chat,aux_mssg);
 						send_message(to_chat, cli->universal_unique_id);
 					}else{
-						char *aux_to = json_object_get_string(to);
+						const char *aux_to = json_object_get_string(to);
 						send_private_message(to_chat,aux_to);
 					}
 
