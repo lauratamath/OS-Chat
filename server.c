@@ -67,7 +67,7 @@ void queue_add(user_t *cl){
 	int i;
 	for(i=0; i < MAX_USERS; ++i){
 		if(!users[i]){
-			users[i] = (struct user_t*)cl;
+			users[i] = cl;
 			break;
 		}
 	}
