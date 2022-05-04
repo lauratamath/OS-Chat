@@ -9,8 +9,10 @@
 #include <netinet/in.h>
 #include <pthread.h>
 #include <json-c/json.h>
+#include <time.h>
 
 #define LENGTH 2048
+#define SIZE 256
 char name[20];
 char to[20] = "all";
 int socketDesc = 0;
@@ -130,31 +132,29 @@ void chatManager() {
 			send(socketDesc, request, strlen(request), 0);
 		}
 		else if(strcmp(message, "/private") == 0){
-		printf("Ingrese el nombre del usuario que desea hablar:\n");
-		char input[32];
-		fgets(input,32,stdin);
-		strTrimLf(input,32); 
+			printf("Ingrese el nombre del usuario que desea hablar:\n");
+			char input[32];
+			fgets(input,32,stdin);
+			strTrimLf(input,32); 
 
-		sprintf(buffer, "%s\n", message);
-		json_object *POST_CHAT = json_object_new_object();
-		json_object *jarray = json_object_new_array();
-		json_object_object_add(POST_CHAT, "request", json_object_new_string("POST_CHAT")); //crea un nuevo mensaje para algun chat
-		json_object *jstring_message = json_object_new_string(buffer);
-		json_object *jstring_from = json_object_new_string(name);
-		json_object *jstring_time = json_object_new_string("00:00");
-		json_object *jstring_to = json_object_new_string(input); //Entabla la conversacion
-		json_object_array_add(jarray,jstring_message);
-		json_object_array_add(jarray,jstring_from);	
-		json_object_array_add(jarray,jstring_time);
-		json_object_array_add(jarray,jstring_to);
+			sprintf(buffer, "%s\n", message);
+			json_object *POST_CHAT = json_object_new_object();
+			json_object *jarray = json_object_new_array();
+			json_object_object_add(POST_CHAT, "request", json_object_new_string("POST_CHAT")); //crea un nuevo mensaje para algun chat
+			json_object *jstring_message = json_object_new_string(buffer);
+			json_object *jstring_from = json_object_new_string(name);
+			json_object *jstring_time = json_object_new_string("19:15");
+			json_object *jstring_to = json_object_new_string(input); //Entabla la conversacion
+			json_object_array_add(jarray,jstring_message);
+			json_object_array_add(jarray,jstring_from);	
+			json_object_array_add(jarray,jstring_time);
+			json_object_array_add(jarray,jstring_to);
 	
-		json_object_object_add(POST_CHAT, "body", jarray);
+			json_object_object_add(POST_CHAT, "body", jarray);
 
-		const char* request = json_object_to_json_string(POST_CHAT);
+			const char* request = json_object_to_json_string(POST_CHAT);
 
-		//printf("%s", request);
-
-		     send(socketDesc, request, strlen(request), 0);
+			send(socketDesc, request, strlen(request), 0);
 		}
 		else if(strcmp(message, "/general") == 0){
 			sprintf(buffer, "%s\n", message);
@@ -163,7 +163,7 @@ void chatManager() {
 			json_object_object_add(POST_CHAT, "request", json_object_new_string("POST_CHAT"));  //Crea un nuevo mensjae para el grupo
 			json_object *jstring_message = json_object_new_string(buffer);
 			json_object *jstring_from = json_object_new_string(name);
-			json_object *jstring_time = json_object_new_string("00:00");
+			json_object *jstring_time = json_object_new_string("20:10");
 			json_object *jstring_to = json_object_new_string(to);
 			json_object_array_add(jarray,jstring_message);
 			json_object_array_add(jarray,jstring_from);	
@@ -184,7 +184,7 @@ void chatManager() {
 			json_object_object_add(POST_CHAT, "request", json_object_new_string("POST_CHAT")); //Crea un nuevo mensjae para el grupo
 			json_object *jstring_message = json_object_new_string(buffer);
 			json_object *jstring_from = json_object_new_string(name);
-			json_object *jstring_time = json_object_new_string("00:00");
+			json_object *jstring_time = json_object_new_string("20:15");
 			json_object *jstring_to = json_object_new_string(to);
 			json_object_array_add(jarray,jstring_message);
 			json_object_array_add(jarray,jstring_from);	
@@ -247,7 +247,7 @@ int main(int argc, char **argv){
 	json_object *INIT_CONEX = json_object_new_object();
 	json_object *jarray = json_object_new_array();
 	json_object_object_add(INIT_CONEX, "request", json_object_new_string("INIT_CONEX")); // Establecer una conexion al servidor
-	json_object *jstring_time = json_object_new_string("00:00");
+	json_object *jstring_time = json_object_new_string("19:20");
 	json_object *jstring_name = json_object_new_string(name);
 	json_object_array_add(jarray,jstring_time);
 	json_object_array_add(jarray,jstring_name);
